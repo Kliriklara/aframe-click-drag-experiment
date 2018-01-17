@@ -1,0 +1,167 @@
+<html>
+  <head>
+    <title>A-Frame Click & Drag Component - Physics 2</title>
+    <script src="../build.js"></script>
+    <script src="https://unpkg.com/aframe-text-geometry-component@^0.5.0/dist/aframe-text-geometry-component.min.js"></script>
+    <script src="myfont.typeface.js"></script>
+  </head>
+  <body>
+    <a-scene physics="debug: false; gravity: -20">
+      <a-assets>
+          <a-asset-item id="optimerBoldFont" src="https://rawgit.com/mrdoob/three.js/dev/examples/fonts/optimer_bold.typeface.json"></a-asset-item>
+          <a-mixin id="boldFont" text="font: #optimerBoldFont"></a-mixin>
+      </a-assets>
+
+
+      <a-entity
+        click-drag
+        dynamic-body="mass: 2"
+        position="-1 3 -1"
+        text-geometry="value: Ole; font: #optimerBoldFont"
+        geometry="primitive: box;"
+      >
+        <a-sound src="./ole.mp3" maxDistance="500"></a-sound>
+      </a-entity>
+
+      <a-entity
+        click-drag
+        dynamic-body="mass: 2"
+        position="-1.5 3 -1"
+        text-geometry="value: Pa"
+        geometry="primitive: box; height: 0.5;"
+      >
+        <a-sound src="./pa.mp3" maxDistance="500"></a-sound>
+      </a-entity>
+
+      <a-entity
+        click-drag
+        dynamic-body="mass: 2"
+        position="0 3 -1"
+        text-geometry="value: Bra"
+        geometry="primitive: box;"
+      >
+        <a-sound src="./bra.mp3" maxDistance="500"></a-sound>
+      </a-entity>
+
+      <a-entity
+        click-drag
+        dynamic-body="mass: 3"
+        position="0 3.5 -1.5"
+        text-geometry="value: Slaw; font: #optimerBoldFont"
+        geometry="primitive: box;"
+      >
+        <a-sound src="./slaw.mp3" maxDistance="500"></a-sound>
+      </a-entity>
+
+      <a-entity
+        click-drag
+        dynamic-body="mass: 3"
+        position="-1.5 3 -1"
+        text-geometry="value: Shah"
+        geometry="primitive: box;"
+      >
+        <a-sound src="./shah.mp3" maxDistance="500"></a-sound>
+      </a-entity>
+
+      <a-entity
+        click-drag
+        dynamic-body="mass: 3"
+        position="-0.1 3.5 -1"
+        text-geometry="value: Grey"
+        geometry="primitive: box;"
+      >
+        <a-sound src="./grey.mp3" maxDistance="500"></a-sound>
+      </a-entity>
+
+      <a-entity
+        click-drag
+        dynamic-body="mass: 2"
+        position="1.2 2.8 -1"
+        text-geometry="value: Ta"
+        geometry="primitive: box;"
+      >
+        <a-sound src="./ta.mp3" maxDistance="500"></a-sound>
+      </a-entity>
+
+      <a-entity value="text: HELLO!; color: #333" position="1 3 -1"></a-entity>
+
+      <a-entity dynamic-body="mass: 0.1" position="-2.8 0.6 -8" color="#EF2D5E" value="wuhu"></a-entity>
+      <a-box dynamic-body="mass: 0.1" position="-1.4 0.6 -8" color="#EF2D5E"></a-box>
+      <a-box dynamic-body="mass: 0.1" position="0 0.6 -8" color="#EF2D5E"></a-box>
+      <a-box dynamic-body="mass: 0.1" position="1.4 0.6 -8" color="#EF2D5E"></a-box>
+      <a-box dynamic-body="mass: 0.1" position="2.8 0.6 -8" color="#EF2D5E"></a-box>
+
+      <a-box dynamic-body="mass: 0.1" position="-2 1.7 -8" color="#EF2D5E"></a-box>
+      <a-box dynamic-body="mass: 0.1" position="-0.7 1.7 -8" color="#EF2D5E"></a-box>
+      <a-box dynamic-body="mass: 0.1" position="0.7 1.7 -8" color="#EF2D5E"></a-box>
+      <a-box dynamic-body="mass: 0.1" position="2 1.7 -8" color="#EF2D5E"></a-box>
+
+      <a-box dynamic-body="mass: 0.1" position="-1.4 2.8 -8" color="#EF2D5E"></a-box>
+      <a-box dynamic-body="mass: 0.1" position="0 2.8 -8" color="#EF2D5E"></a-box>
+      <a-box dynamic-body="mass: 0.1" position="1.4 2.8 -8" color="#EF2D5E"></a-box>
+
+      <a-box dynamic-body="mass: 0.1" position="-0.7 3.9 -8" color="#EF2D5E"></a-box>
+      <a-box dynamic-body="mass: 0.1" position="0.7 3.9 -8" color="#EF2D5E"></a-box>
+
+      <a-box dynamic-body="mass: 0.1" position="0 5 -8" color="#EF2D5E"></a-box>
+
+
+      <a-plane static-body rotation="-90 0 0" width="200" height="200" color="#7BC8A4"></a-plane>
+
+      <a-sky color="#ECECEC"></a-sky>
+
+      <a-entity position="0 0 3.8">
+        <a-camera look-controls-enabled="false" keyboard-controls="mode: fps"></a-camera>
+      </a-entity>
+      <script>
+        var dragStart = function(dragInfo) {
+          this.components['dynamic-body'].pause();
+
+          var sound = this.children[0];
+          sound.components['sound'].playSound();
+        };
+
+        var dragEnd = function(dragInfo) {
+
+          // We're dealing with a very heavy ball (mass: 10), so we want to
+          // reduce the velocity a little
+          var velocityDamp = 0.5;
+
+          var camera = this.sceneEl.camera;
+
+          // The "up" vector of the camera
+          var rotation = camera.up.clone();
+          // crossed with the "forward" / direction vector of the camera
+          // gives us the 3rd orthogonal axis of the camera's rotation
+          rotation.cross(camera.getWorldDirection());
+
+          // A damped down velocity vector
+          var rotatedVelocity = new window.AFRAME.THREE.Vector3(
+            dragInfo.detail.velocity.x * velocityDamp,
+            dragInfo.detail.velocity.y * velocityDamp,
+            dragInfo.detail.velocity.z * velocityDamp
+          );
+
+          // Which we then rotate *into* the screen by 45 degrees
+          // This gives the feeling of "tossing" the ball
+          rotatedVelocity.applyAxisAngle(rotation, Math.PI / 8);
+
+          this.components['dynamic-body'].play();
+          this.body.velocity.set(rotatedVelocity.x, rotatedVelocity.y, rotatedVelocity.z);
+        };
+
+        var onClick = function(clickInfo) {
+          var sound = this.children[0];
+          console.log(sound);
+          sound.components['sound'].playSound();
+        };
+
+        var draggables = document.querySelectorAll('[click-drag]');
+        draggables.forEach(function(draggable) {
+          draggable.addEventListener('dragstart', dragStart);
+          draggable.addEventListener('dragend', dragEnd);
+        });
+      </script>
+    </a-scene>
+  </body>
+</html>
